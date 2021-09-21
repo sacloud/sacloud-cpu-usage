@@ -33,6 +33,8 @@ type commandOpts struct {
 	Zone          string   `long:"zone" description:"zone name" required:"true"`
 	PercentileSet string   `long:"percentile-set" default:"99,95,90,75" description:"percentiles to dispaly"`
 	Version       bool     `short:"v" long:"version" description:"Show version"`
+	UpperThres    *float64 `long:"upper-thres" description:"If the average CPU usage exceeds the upper threshold, exit in CRITICAL(2) state"`
+	LowerThres    *float64 `long:"lower-thres" description:"If the average CPU usage lower than the lower threshold, exit in WARNING(1) state"`
 }
 
 type percentile struct {
@@ -109,6 +111,13 @@ func _main() int {
 
 	if opts.Time < 1 {
 		opts.Time = 1
+	}
+
+	if opts.UpperThres != nil && opts.LowerThres != nil {
+		if *opts.LowerThres >= *opts.UpperThres {
+			log.Printf("%s", "lower-thres exceed upper-thres")
+			return UNKNOWN
+		}
 	}
 
 	percentiles := []percentile{}
@@ -192,5 +201,20 @@ func _main() int {
 	}
 	j, _ := json.Marshal(result)
 	fmt.Println(string(j))
-	return OK
+
+	code := OK
+	if opts.UpperThres != nil {
+		if total/fl > *opts.UpperThres {
+			log.Printf("Average:%f exceed upper-thres:%f", total/fl, *opts.UpperThres)
+			code = CRITICAL
+		}
+	}
+	if opts.LowerThres != nil {
+		if total/fl < *opts.LowerThres {
+			log.Printf("Average:%f lower than lower-thres:%f", total/fl, *opts.LowerThres)
+			code = WARNING
+		}
+	}
+
+	return code
 }
