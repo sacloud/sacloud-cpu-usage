@@ -30,7 +30,7 @@ const OK = 0
 
 type commandOpts struct {
 	Time          uint     `long:"time" description:"Get average CPU usage for a specified amount of time" default:"3"`
-	Prefix        []string `long:"prefix" description:"prefix for server name" required:"true"`
+	Prefix        []string `long:"prefix" description:"prefix for server names. prefix accepts more than one." required:"true"`
 	Zone          string   `long:"zone" description:"zone name" required:"true"`
 	PercentileSet string   `long:"percentile-set" default:"99,95,90,75" description:"percentiles to dispaly"`
 	Version       bool     `short:"v" long:"version" description:"Show version"`
