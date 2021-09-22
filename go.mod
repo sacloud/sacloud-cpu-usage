@@ -6,7 +6,7 @@ require github.com/jessevdk/go-flags v1.5.0
 
 require (
 	github.com/sacloud/libsacloud/v2 v2.25.1
-	golang.org/x/sys v0.0.0-20210320140829-1e4c9ba3b0c4 // indirect
+	golang.org/x/sys v0.0.0-20210831042530-f4d43177bf5e // indirect
 )
 
 require (
@@ -20,4 +20,9 @@ require (
 	github.com/leodido/go-urn v1.2.0 // indirect
 	github.com/mitchellh/mapstructure v1.3.2 // indirect
 	go.uber.org/ratelimit v0.0.0-20180316092928-c15da0234277 // indirect
+)
+
+require (
+	github.com/itchyny/gojq v0.12.5 // indirect
+	github.com/itchyny/timefmt-go v0.1.3 // indirect
 )

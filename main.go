@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/itchyny/gojq"
 	"github.com/jessevdk/go-flags"
 	"github.com/joho/godotenv"
 	"github.com/sacloud/libsacloud/v2/sacloud"
@@ -35,6 +36,7 @@ type commandOpts struct {
 	Version       bool     `short:"v" long:"version" description:"Show version"`
 	UpperThres    *float64 `long:"upper-thres" description:"If the average CPU usage exceeds the upper threshold, exit in CRITICAL(2) state"`
 	LowerThres    *float64 `long:"lower-thres" description:"If the average CPU usage lower than the lower threshold, exit in WARNING(1) state"`
+	Query         string   `long:"query" description:"jq style query to result and display"`
 }
 
 type percentile struct {
@@ -199,8 +201,6 @@ func _main() int {
 	for _, p := range percentiles {
 		result[fmt.Sprintf("%spt", p.str)] = fs[round(fl*(p.float))]
 	}
-	j, _ := json.Marshal(result)
-	fmt.Println(string(j))
 
 	code := OK
 	if opts.UpperThres != nil {
@@ -214,6 +214,36 @@ func _main() int {
 			log.Printf("Average:%f lower than lower-thres:%f", total/fl, *opts.LowerThres)
 			code = WARNING
 		}
+	}
+
+	j, _ := json.Marshal(result)
+
+	if opts.Query != "" {
+		log.Print(string(j))
+		query, err := gojq.Parse(opts.Query)
+		if err != nil {
+			log.Printf("%v", err)
+			return UNKNOWN
+		}
+		iter := query.Run(result)
+		for {
+			v, ok := iter.Next()
+			if !ok {
+				break
+			}
+			if err, ok := v.(error); ok {
+				log.Printf("%v", err)
+				return UNKNOWN
+			}
+			if v == nil {
+				log.Printf("%s not found in result", opts.Query)
+				// return UNKNOWN
+			}
+			j2, _ := json.Marshal(v)
+			fmt.Println(string(j2))
+		}
+	} else {
+		fmt.Println(string(j))
 	}
 
 	return code
