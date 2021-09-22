@@ -5,7 +5,6 @@ Fetch cpu usage of server instances from sacloud API and calcurate Max/Min/Avera
 # Usage
 
 ```
-% ./sacloud-cpu-usage -h
 Usage:
   sacloud-cpu-usage [OPTIONS]
 
@@ -18,6 +17,7 @@ Application Options:
       --upper-thres=    If the average CPU usage exceeds the upper threshold, exit in CRITICAL(2) state
       --lower-thres=    If the average CPU usage lower than the lower threshold, exit in WARNING(1) state
       --query=          jq style query to result and display
+      --env-from=       load envrionment values from this file
 
 Help Options:
   -h, --help            Show this help message
