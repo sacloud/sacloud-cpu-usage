@@ -37,6 +37,7 @@ type commandOpts struct {
 	UpperThres    *float64 `long:"upper-thres" description:"If the average CPU usage exceeds the upper threshold, exit in CRITICAL(2) state"`
 	LowerThres    *float64 `long:"lower-thres" description:"If the average CPU usage lower than the lower threshold, exit in WARNING(1) state"`
 	Query         string   `long:"query" description:"jq style query to result and display"`
+	EnvFrom       string   `long:"env-from" description:"load envrionment values from this file"`
 }
 
 type percentile struct {
@@ -88,7 +89,6 @@ func printVersion() {
 }
 
 func main() {
-	godotenv.Load()
 	os.Exit(_main())
 }
 
@@ -105,14 +105,18 @@ func _main() int {
 		return OK
 	}
 
+	if opts.Time < 1 {
+		opts.Time = 1
+	}
+
+	if opts.EnvFrom != "" {
+		godotenv.Load(opts.EnvFrom)
+	}
+
 	client, err := serverClient()
 	if err != nil {
 		log.Printf("%v", err)
 		return UNKNOWN
-	}
-
-	if opts.Time < 1 {
-		opts.Time = 1
 	}
 
 	if opts.UpperThres != nil && opts.LowerThres != nil {
