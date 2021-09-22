@@ -38,6 +38,8 @@ type commandOpts struct {
 	LowerThres    *float64 `long:"lower-thres" description:"If the average CPU usage lower than the lower threshold, exit in WARNING(1) state"`
 	Query         string   `long:"query" description:"jq style query to result and display"`
 	EnvFrom       string   `long:"env-from" description:"load envrionment values from this file"`
+	client        sacloud.ServerAPI
+	percentiles   []percentile
 }
 
 type percentile struct {
@@ -57,14 +59,14 @@ func serverClient() (sacloud.ServerAPI, error) {
 	return sacloud.NewServerOp(client), nil
 }
 
-func findServers(opts commandOpts, client sacloud.ServerAPI) ([]*sacloud.Server, error) {
+func findServers(opts commandOpts) ([]*sacloud.Server, error) {
 	var servers []*sacloud.Server
 	for _, prefix := range opts.Prefix {
 		condition := &sacloud.FindCondition{
 			Filter: map[search.FilterKey]interface{}{},
 		}
 		condition.Filter[search.Key("Name")] = search.PartialMatch(prefix)
-		result, err := client.Find(
+		result, err := opts.client.Find(
 			context.Background(),
 			opts.Zone,
 			condition,
@@ -79,6 +81,68 @@ func findServers(opts commandOpts, client sacloud.ServerAPI) ([]*sacloud.Server,
 		}
 	}
 	return servers, nil
+}
+
+func fetchMetrics(opts commandOpts, servers []*sacloud.Server) (map[string]interface{}, error) {
+	if len(servers) == 0 {
+		result := map[string]interface{}{}
+		result["count"] = 0
+		result["max"] = float64(0)
+		result["avg"] = float64(0)
+		result["min"] = float64(0)
+		for _, p := range opts.percentiles {
+			result[fmt.Sprintf("%spt", p.str)] = float64(0)
+		}
+		return result, nil
+	}
+
+	b, _ := time.ParseDuration(fmt.Sprintf("-%dm", (opts.Time+3)*5))
+	condition := &sacloud.MonitorCondition{
+		Start: time.Now().Add(b),
+		End:   time.Now(),
+	}
+	var fs sort.Float64Slice
+	total := float64(0)
+	for _, t := range servers {
+
+		activity, err := opts.client.MonitorCPU(
+			context.Background(),
+			opts.Zone,
+			t.ID,
+			condition,
+		)
+		if err != nil {
+			return nil, err
+		}
+		usages := activity.GetValues()
+		if len(usages) == 0 {
+			continue
+		}
+		if len(usages) > int(opts.Time) {
+			usages = usages[len(usages)-int(opts.Time):]
+		}
+		sum := float64(0)
+		for _, p := range usages {
+			log.Printf("%s cores:%d cpu:%f time:%s", t.Name, t.GetCPU(), p.GetCPUTime(), p.GetTime().String())
+			u := p.GetCPUTime() / float64(t.GetCPU())
+			sum += u
+		}
+		avg := sum * 100 / float64(len(usages))
+		log.Printf("%s avg:%f", t.Name, avg)
+		fs = append(fs, avg)
+		total += avg
+	}
+	sort.Sort(fs)
+	fl := float64(len(fs))
+	result := map[string]interface{}{}
+	result["count"] = len(fs)
+	result["max"] = fs[len(fs)-1]
+	result["avg"] = total / fl
+	result["min"] = fs[0]
+	for _, p := range opts.percentiles {
+		result[fmt.Sprintf("%spt", p.str)] = fs[round(fl*(p.float))]
+	}
+	return result, nil
 }
 
 func printVersion() {
@@ -118,6 +182,7 @@ func _main() int {
 		log.Printf("%v", err)
 		return UNKNOWN
 	}
+	opts.client = client
 
 	if opts.UpperThres != nil && opts.LowerThres != nil {
 		if *opts.LowerThres >= *opts.UpperThres {
@@ -137,85 +202,34 @@ func _main() int {
 		f = f / 100
 		percentiles = append(percentiles, percentile{s, f})
 	}
+	opts.percentiles = percentiles
 
-	servers, err := findServers(opts, client)
+	servers, err := findServers(opts)
 	if err != nil {
 		log.Printf("%v", err)
 		return UNKNOWN
 	}
 
-	if len(servers) == 0 {
-		result := map[string]interface{}{}
-		result["count"] = 0
-		result["max"] = float64(0)
-		result["avg"] = float64(0)
-		result["min"] = float64(0)
-		for _, p := range percentiles {
-			result[fmt.Sprintf("%spt", p.str)] = float64(0)
-		}
-		j, _ := json.Marshal(result)
-		fmt.Println(string(j))
-		return OK
+	result, err := fetchMetrics(opts, servers)
+	if err != nil {
+		log.Printf("%v", err)
+		return UNKNOWN
 	}
-
-	b, _ := time.ParseDuration(fmt.Sprintf("-%dm", (opts.Time+3)*5))
-	condition := &sacloud.MonitorCondition{
-		Start: time.Now().Add(b),
-		End:   time.Now(),
+	avg, ok := result["avg"].(float64)
+	if !ok {
+		log.Printf("%v", "failed to conversion")
+		return UNKNOWN
 	}
-	var fs sort.Float64Slice
-	total := float64(0)
-	for _, t := range servers {
-
-		activity, err := client.MonitorCPU(
-			context.Background(),
-			opts.Zone,
-			t.ID,
-			condition,
-		)
-		if err != nil {
-			log.Printf("%v", err)
-			return UNKNOWN
-		}
-		usages := activity.GetValues()
-		if len(usages) == 0 {
-			continue
-		}
-		if len(usages) > int(opts.Time) {
-			usages = usages[len(usages)-int(opts.Time):]
-		}
-		sum := float64(0)
-		for _, p := range usages {
-			log.Printf("%s cores:%d cpu:%f time:%s", t.Name, t.GetCPU(), p.GetCPUTime(), p.GetTime().String())
-			u := p.GetCPUTime() / float64(t.GetCPU())
-			sum += u
-		}
-		avg := sum * 100 / float64(len(usages))
-		log.Printf("%s avg:%f", t.Name, avg)
-		fs = append(fs, avg)
-		total += avg
-	}
-	sort.Sort(fs)
-	fl := float64(len(fs))
-	result := map[string]interface{}{}
-	result["count"] = len(fs)
-	result["max"] = fs[len(fs)-1]
-	result["avg"] = total / fl
-	result["min"] = fs[0]
-	for _, p := range percentiles {
-		result[fmt.Sprintf("%spt", p.str)] = fs[round(fl*(p.float))]
-	}
-
 	code := OK
 	if opts.UpperThres != nil {
-		if total/fl > *opts.UpperThres {
-			log.Printf("Average:%f exceed upper-thres:%f", total/fl, *opts.UpperThres)
+		if avg > *opts.UpperThres {
+			log.Printf("Average:%f exceed upper-thres:%f", avg, *opts.UpperThres)
 			code = CRITICAL
 		}
 	}
 	if opts.LowerThres != nil {
-		if total/fl < *opts.LowerThres {
-			log.Printf("Average:%f lower than lower-thres:%f", total/fl, *opts.LowerThres)
+		if avg < *opts.LowerThres {
+			log.Printf("Average:%f lower than lower-thres:%f", avg, *opts.LowerThres)
 			code = WARNING
 		}
 	}
