@@ -81,18 +81,7 @@ func findServers(opts commandOpts) ([]*sacloud.Server, error) {
 	return servers, nil
 }
 
-func fetchMetrics(opts commandOpts, servers []*sacloud.Server) (map[string]interface{}, error) {
-	if len(servers) == 0 {
-		result := map[string]interface{}{}
-		result["count"] = 0
-		result["max"] = float64(0)
-		result["avg"] = float64(0)
-		result["min"] = float64(0)
-		for _, p := range opts.percentiles {
-			result[fmt.Sprintf("%spt", p.str)] = float64(0)
-		}
-		return result, nil
-	}
+func fetchMetrics(opts commandOpts, ss []*sacloud.Server) (map[string]interface{}, error) {
 
 	b, _ := time.ParseDuration(fmt.Sprintf("-%dm", (opts.Time+3)*5))
 	condition := &sacloud.MonitorCondition{
@@ -100,8 +89,9 @@ func fetchMetrics(opts commandOpts, servers []*sacloud.Server) (map[string]inter
 		End:   time.Now(),
 	}
 	var fs sort.Float64Slice
+	servers := make([]interface{}, 0)
 	total := float64(0)
-	for _, t := range servers {
+	for _, t := range ss {
 
 		activity, err := opts.client.MonitorCPU(
 			context.Background(),
@@ -120,7 +110,13 @@ func fetchMetrics(opts commandOpts, servers []*sacloud.Server) (map[string]inter
 			usages = usages[len(usages)-int(opts.Time):]
 		}
 		sum := float64(0)
+		monitors := make([]interface{}, 0)
 		for _, p := range usages {
+			m := map[string]interface{}{
+				"cpu_time": p.GetCPUTime(),
+				"time":     p.GetTime().String(),
+			}
+			monitors = append(monitors, m)
 			log.Printf("%s cores:%d cpu:%f time:%s", t.Name, t.GetCPU(), p.GetCPUTime(), p.GetTime().String())
 			u := p.GetCPUTime() / float64(t.GetCPU())
 			sum += u
@@ -129,17 +125,37 @@ func fetchMetrics(opts commandOpts, servers []*sacloud.Server) (map[string]inter
 		log.Printf("%s avg:%f", t.Name, avg)
 		fs = append(fs, avg)
 		total += avg
+
+		servers = append(servers, map[string]interface{}{
+			"name":     t.Name,
+			"avg":      avg,
+			"cores":    t.GetCPU(),
+			"monitors": monitors,
+		})
 	}
+
+	if len(fs) == 0 {
+		result := map[string]interface{}{}
+		result["max"] = float64(0)
+		result["avg"] = float64(0)
+		result["min"] = float64(0)
+		for _, p := range opts.percentiles {
+			result[fmt.Sprintf("%spt", p.str)] = float64(0)
+		}
+		result["servers"] = servers
+		return result, nil
+	}
+
 	sort.Sort(fs)
 	fl := float64(len(fs))
 	result := map[string]interface{}{}
-	result["count"] = len(fs)
 	result["max"] = fs[len(fs)-1]
 	result["avg"] = total / fl
 	result["min"] = fs[0]
 	for _, p := range opts.percentiles {
 		result[fmt.Sprintf("%spt", p.str)] = fs[round(fl*(p.float))]
 	}
+	result["servers"] = servers
 	return result, nil
 }
 
@@ -210,7 +226,6 @@ func _main() int {
 	j, _ := json.Marshal(result)
 
 	if opts.Query != "" {
-		log.Print(string(j))
 		query, err := gojq.Parse(opts.Query)
 		if err != nil {
 			log.Printf("%v", err)
@@ -228,7 +243,7 @@ func _main() int {
 			}
 			if v == nil {
 				log.Printf("%s not found in result", opts.Query)
-				// return UNKNOWN
+				return UNKNOWN
 			}
 			j2, _ := json.Marshal(v)
 			fmt.Println(string(j2))
