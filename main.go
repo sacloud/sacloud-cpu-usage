@@ -34,8 +34,6 @@ type commandOpts struct {
 	Zone          string   `long:"zone" description:"zone name" required:"true"`
 	PercentileSet string   `long:"percentile-set" default:"99,95,90,75" description:"percentiles to dispaly"`
 	Version       bool     `short:"v" long:"version" description:"Show version"`
-	UpperThres    *float64 `long:"upper-thres" description:"If the average CPU usage exceeds the upper threshold, exit in CRITICAL(2) state"`
-	LowerThres    *float64 `long:"lower-thres" description:"If the average CPU usage lower than the lower threshold, exit in WARNING(1) state"`
 	Query         string   `long:"query" description:"jq style query to result and display"`
 	EnvFrom       string   `long:"env-from" description:"load envrionment values from this file"`
 	client        sacloud.ServerAPI
@@ -184,13 +182,6 @@ func _main() int {
 	}
 	opts.client = client
 
-	if opts.UpperThres != nil && opts.LowerThres != nil {
-		if *opts.LowerThres >= *opts.UpperThres {
-			log.Printf("%s", "lower-thres exceed upper-thres")
-			return UNKNOWN
-		}
-	}
-
 	percentiles := []percentile{}
 	percentileStrings := strings.Split(opts.PercentileSet, ",")
 	for _, s := range percentileStrings {
@@ -214,24 +205,6 @@ func _main() int {
 	if err != nil {
 		log.Printf("%v", err)
 		return UNKNOWN
-	}
-	avg, ok := result["avg"].(float64)
-	if !ok {
-		log.Printf("%v", "failed to conversion")
-		return UNKNOWN
-	}
-	code := OK
-	if opts.UpperThres != nil {
-		if avg > *opts.UpperThres {
-			log.Printf("Average:%f exceed upper-thres:%f", avg, *opts.UpperThres)
-			code = CRITICAL
-		}
-	}
-	if opts.LowerThres != nil {
-		if avg < *opts.LowerThres {
-			log.Printf("Average:%f lower than lower-thres:%f", avg, *opts.LowerThres)
-			code = WARNING
-		}
 	}
 
 	j, _ := json.Marshal(result)
@@ -264,5 +237,5 @@ func _main() int {
 		fmt.Println(string(j))
 	}
 
-	return code
+	return OK
 }

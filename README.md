@@ -14,14 +14,11 @@ Application Options:
       --zone=           zone name
       --percentile-set= percentiles to dispaly (default: 99,95,90,75)
   -v, --version         Show version
-      --upper-thres=    If the average CPU usage exceeds the upper threshold, exit in CRITICAL(2) state
-      --lower-thres=    If the average CPU usage lower than the lower threshold, exit in WARNING(1) state
       --query=          jq style query to result and display
       --env-from=       load envrionment values from this file
 
 Help Options:
   -h, --help            Show this help message
-
 ```
 
 
