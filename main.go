@@ -32,7 +32,7 @@ const OK = 0
 type commandOpts struct {
 	Time          uint     `long:"time" description:"Get average CPU usage for a specified amount of time" default:"3"`
 	Prefix        []string `long:"prefix" description:"prefix for server names. prefix accepts more than one." required:"true"`
-	Zone          string   `long:"zone" description:"zone name" required:"true"`
+	Zones         []string `long:"zone" description:"zone name" required:"true"`
 	PercentileSet string   `long:"percentile-set" default:"99,95,90,75" description:"percentiles to dispaly"`
 	Version       bool     `short:"v" long:"version" description:"Show version"`
 	Query         string   `long:"query" description:"jq style query to result and display"`
@@ -67,21 +67,23 @@ func serverClient() (sacloud.ServerAPI, error) {
 func findServers(opts commandOpts) ([]*sacloud.Server, error) {
 	var servers []*sacloud.Server
 	for _, prefix := range opts.Prefix {
-		condition := &sacloud.FindCondition{
-			Filter: map[search.FilterKey]interface{}{},
-		}
-		condition.Filter[search.Key("Name")] = search.PartialMatch(prefix)
-		result, err := opts.client.Find(
-			context.Background(),
-			opts.Zone,
-			condition,
-		)
-		if err != nil {
-			return nil, err
-		}
-		for _, s := range result.Servers {
-			if strings.Index(s.Name, prefix) == 0 {
-				servers = append(servers, s)
+		for _, zone := range opts.Zones {
+			condition := &sacloud.FindCondition{
+				Filter: map[search.FilterKey]interface{}{},
+			}
+			condition.Filter[search.Key("Name")] = search.PartialMatch(prefix)
+			result, err := opts.client.Find(
+				context.Background(),
+				zone,
+				condition,
+			)
+			if err != nil {
+				return nil, err
+			}
+			for _, s := range result.Servers {
+				if strings.Index(s.Name, prefix) == 0 {
+					servers = append(servers, s)
+				}
 			}
 		}
 	}
@@ -99,10 +101,9 @@ func fetchMetrics(opts commandOpts, ss []*sacloud.Server) (map[string]interface{
 	servers := make([]interface{}, 0)
 	total := float64(0)
 	for _, t := range ss {
-
 		activity, err := opts.client.MonitorCPU(
 			context.Background(),
-			opts.Zone,
+			t.Zone.Name,
 			t.ID,
 			condition,
 		)
@@ -124,7 +125,7 @@ func fetchMetrics(opts commandOpts, ss []*sacloud.Server) (map[string]interface{
 				"time":     p.GetTime().String(),
 			}
 			monitors = append(monitors, m)
-			log.Printf("%s cores:%d cpu:%f time:%s", t.Name, t.GetCPU(), p.GetCPUTime(), p.GetTime().String())
+			log.Printf("%s zone:%s cores:%d cpu:%f time:%s", t.Name, t.Zone.Name, t.GetCPU(), p.GetCPUTime(), p.GetTime().String())
 			u := p.GetCPUTime() / float64(t.GetCPU())
 			sum += u
 		}
@@ -135,6 +136,7 @@ func fetchMetrics(opts commandOpts, ss []*sacloud.Server) (map[string]interface{
 
 		servers = append(servers, map[string]interface{}{
 			"name":     t.Name,
+			"zone":     t.Zone.Name,
 			"avg":      avg,
 			"cores":    t.GetCPU(),
 			"monitors": monitors,
@@ -196,6 +198,15 @@ func _main() int {
 
 	if opts.EnvFrom != "" {
 		godotenv.Load(opts.EnvFrom)
+	}
+
+	m := make(map[string]struct{})
+	for _, z := range opts.Zones {
+		if _, ok := m[z]; ok {
+			log.Printf("zone %q is duplicated", z)
+			return UNKNOWN
+		}
+		m[z] = struct{}{}
 	}
 
 	client, err := serverClient()
