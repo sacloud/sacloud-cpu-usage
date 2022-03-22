@@ -16,6 +16,7 @@ import (
 	"github.com/itchyny/gojq"
 	"github.com/jessevdk/go-flags"
 	"github.com/joho/godotenv"
+	"github.com/sacloud/libsacloud/v2/helper/api"
 	"github.com/sacloud/libsacloud/v2/sacloud"
 	"github.com/sacloud/libsacloud/v2/sacloud/search"
 )
@@ -50,11 +51,17 @@ func round(f float64) int64 {
 }
 
 func serverClient() (sacloud.ServerAPI, error) {
-	client, err := sacloud.NewClientFromEnv()
-	if err != nil {
-		return nil, err
+	options := api.OptionsFromEnv()
+
+	if options.AccessToken == "" {
+		return nil, fmt.Errorf("environment variable %q is required", "SAKURACLOUD_ACCESS_TOKEN")
 	}
-	return sacloud.NewServerOp(client), nil
+	if options.AccessTokenSecret == "" {
+		return nil, fmt.Errorf("environment variable %q is required", "SAKURACLOUD_ACCESS_TOKEN_SECRET")
+	}
+
+	caller := api.NewCaller(options)
+	return sacloud.NewServerOp(caller), nil
 }
 
 func findServers(opts commandOpts) ([]*sacloud.Server, error) {
