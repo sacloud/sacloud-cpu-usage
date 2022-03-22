@@ -16,3 +16,4 @@
 sacloud-cpu-usage
 
 .env
+.*.env
