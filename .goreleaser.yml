@@ -14,5 +14,5 @@ archives:
     name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
 release:
   github:
-    owner: kazeburo
+    owner: sacloud
     name: sacloud-cpu-usage
