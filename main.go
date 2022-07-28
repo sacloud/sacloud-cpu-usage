@@ -52,12 +52,21 @@ func round(f float64) int64 {
 
 func serverClient() (sacloud.ServerAPI, error) {
 	options := api.OptionsFromEnv()
-
 	if options.AccessToken == "" {
 		return nil, fmt.Errorf("environment variable %q is required", "SAKURACLOUD_ACCESS_TOKEN")
 	}
 	if options.AccessTokenSecret == "" {
 		return nil, fmt.Errorf("environment variable %q is required", "SAKURACLOUD_ACCESS_TOKEN_SECRET")
+	}
+
+	if options.UserAgent == "" {
+		options.UserAgent = fmt.Sprintf(
+			"sacloud/sacloud-cpu-uage/v%s (%s/%s; +https://github.com/sacloud/sacloud-cpu-uage) %s",
+			version,
+			runtime.GOOS,
+			runtime.GOARCH,
+			sacloud.DefaultUserAgent,
+		)
 	}
 
 	caller := api.NewCaller(options)
