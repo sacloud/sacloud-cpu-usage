@@ -201,6 +201,7 @@ func _main() int {
 	}
 
 	if err != nil {
+		fmt.Fprintf(os.Stderr, "%v\n", err)
 		return UNKNOWN
 	}
 
