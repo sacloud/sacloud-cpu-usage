@@ -178,7 +178,10 @@ func fetchMetrics(opts commandOpts, ss []*sacloud.Server) (map[string]interface{
 }
 
 func printVersion() {
-	fmt.Printf(`%s Compiler: %s %s`,
+	fmt.Printf(`%s %s
+Compiler: %s %s
+`,
+		os.Args[0],
 		version,
 		runtime.Compiler,
 		runtime.Version())
@@ -190,15 +193,16 @@ func main() {
 
 func _main() int {
 	opts := commandOpts{}
-	psr := flags.NewParser(&opts, flags.Default)
+	psr := flags.NewParser(&opts, flags.HelpFlag|flags.PassDoubleDash)
 	_, err := psr.Parse()
-	if err != nil {
-		return UNKNOWN
-	}
-
 	if opts.Version {
 		printVersion()
 		return OK
+	}
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%v\n", err)
+		return UNKNOWN
 	}
 
 	if opts.Time < 1 {
