@@ -134,12 +134,12 @@ func fetchMetrics(opts commandOpts, ss []*sacloud.Server) (map[string]interface{
 				"time":     p.GetTime().String(),
 			}
 			monitors = append(monitors, m)
-			log.Printf("%s zone:%s cores:%d cpu:%f time:%s", t.Name, t.Zone.Name, t.GetCPU(), p.GetCPUTime(), p.GetTime().String())
+			log.Printf("%s zone:%s cpu_cores:%d cpu_time:%f time:%s", t.Name, t.Zone.Name, t.GetCPU(), p.GetCPUTime(), p.GetTime().String())
 			u := p.GetCPUTime() / float64(t.GetCPU())
 			sum += u
 		}
 		avg := sum * 100 / float64(len(usages))
-		log.Printf("%s avg:%f", t.Name, avg)
+		log.Printf("%s average_cpu_usage:%f", t.Name, avg)
 		fs = append(fs, avg)
 		total += avg
 
