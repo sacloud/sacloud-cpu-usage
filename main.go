@@ -16,9 +16,9 @@ import (
 	"github.com/itchyny/gojq"
 	"github.com/jessevdk/go-flags"
 	"github.com/joho/godotenv"
-	"github.com/sacloud/libsacloud/v2/helper/api"
-	"github.com/sacloud/libsacloud/v2/sacloud"
-	"github.com/sacloud/libsacloud/v2/sacloud/search"
+	"github.com/sacloud/iaas-api-go"
+	"github.com/sacloud/iaas-api-go/helper/api"
+	"github.com/sacloud/iaas-api-go/search"
 )
 
 // version by Makefile
@@ -37,7 +37,7 @@ type commandOpts struct {
 	Version       bool     `short:"v" long:"version" description:"Show version"`
 	Query         string   `long:"query" description:"jq style query to result and display"`
 	EnvFrom       string   `long:"env-from" description:"load envrionment values from this file"`
-	client        sacloud.ServerAPI
+	client        iaas.ServerAPI
 	percentiles   []percentile
 }
 
@@ -50,7 +50,7 @@ func round(f float64) int64 {
 	return int64(math.Round(f)) - 1
 }
 
-func serverClient() (sacloud.ServerAPI, error) {
+func serverClient() (iaas.ServerAPI, error) {
 	options := api.OptionsFromEnv()
 	if options.AccessToken == "" {
 		return nil, fmt.Errorf("environment variable %q is required", "SAKURACLOUD_ACCESS_TOKEN")
@@ -65,19 +65,19 @@ func serverClient() (sacloud.ServerAPI, error) {
 			version,
 			runtime.GOOS,
 			runtime.GOARCH,
-			sacloud.DefaultUserAgent,
+			iaas.DefaultUserAgent,
 		)
 	}
 
-	caller := api.NewCaller(options)
-	return sacloud.NewServerOp(caller), nil
+	caller := api.NewCallerWithOptions(options)
+	return iaas.NewServerOp(caller), nil
 }
 
-func findServers(opts commandOpts) ([]*sacloud.Server, error) {
-	var servers []*sacloud.Server
+func findServers(opts commandOpts) ([]*iaas.Server, error) {
+	var servers []*iaas.Server
 	for _, prefix := range opts.Prefix {
 		for _, zone := range opts.Zones {
-			condition := &sacloud.FindCondition{
+			condition := &iaas.FindCondition{
 				Filter: map[search.FilterKey]interface{}{},
 			}
 			condition.Filter[search.Key("Name")] = search.PartialMatch(prefix)
@@ -99,10 +99,9 @@ func findServers(opts commandOpts) ([]*sacloud.Server, error) {
 	return servers, nil
 }
 
-func fetchMetrics(opts commandOpts, ss []*sacloud.Server) (map[string]interface{}, error) {
-
+func fetchMetrics(opts commandOpts, ss []*iaas.Server) (map[string]interface{}, error) {
 	b, _ := time.ParseDuration(fmt.Sprintf("-%dm", (opts.Time+3)*5))
-	condition := &sacloud.MonitorCondition{
+	condition := &iaas.MonitorCondition{
 		Start: time.Now().Add(b),
 		End:   time.Now(),
 	}
