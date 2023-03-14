@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/itchyny/gojq v0.12.7
 	github.com/jessevdk/go-flags v1.5.0
-	github.com/joho/godotenv v1.4.0
+	github.com/joho/godotenv v1.5.1
 	github.com/sacloud/iaas-api-go v1.3.2
 )
 
