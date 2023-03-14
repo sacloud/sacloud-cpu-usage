@@ -3,7 +3,7 @@ module github.com/kazeburo/sacloud-cpu-usage
 go 1.18
 
 require (
-	github.com/itchyny/gojq v0.12.7
+	github.com/itchyny/gojq v0.12.12
 	github.com/jessevdk/go-flags v1.5.0
 	github.com/joho/godotenv v1.4.0
 	github.com/sacloud/iaas-api-go v1.3.2
@@ -15,7 +15,7 @@ require (
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-retryablehttp v0.7.1 // indirect
-	github.com/itchyny/timefmt-go v0.1.3 // indirect
+	github.com/itchyny/timefmt-go v0.1.5 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/sacloud/api-client-go v0.2.1 // indirect
@@ -23,5 +23,5 @@ require (
 	github.com/sacloud/packages-go v0.0.5 // indirect
 	go.uber.org/ratelimit v0.2.0 // indirect
 	golang.org/x/crypto v0.0.0-20220321153916-2c7772ba3064 // indirect
-	golang.org/x/sys v0.0.0-20220412211240-33da011f77ad // indirect
+	golang.org/x/sys v0.5.0 // indirect
 )
