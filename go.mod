@@ -4,7 +4,7 @@ go 1.21
 
 require (
 	github.com/sacloud/iaas-api-go v1.11.1
-	github.com/sacloud/sacloud-usage-lib v0.0.3
+	github.com/sacloud/sacloud-usage-lib v0.0.4
 	github.com/stretchr/testify v1.8.4
 )
 
