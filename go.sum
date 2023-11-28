@@ -41,8 +41,8 @@ github.com/sacloud/iaas-api-go v1.11.1 h1:2MsFZ4H1uRdRVx2nVXuERWQ3swoFc3XreIV5hJ
 github.com/sacloud/iaas-api-go v1.11.1/go.mod h1:uBDSa06F/V0OnoR66jGdbH0PVnCJw+NeE9RVbVgMfss=
 github.com/sacloud/packages-go v0.0.9 h1:GbinkBLC/eirFhHpLjoDW6JV7+95Rnd2d8RWj7Afeks=
 github.com/sacloud/packages-go v0.0.9/go.mod h1:k+EEUMF2LlncjbNIJNOqLyZ9wjTESPIWIk1OA7x9j2Q=
-github.com/sacloud/sacloud-usage-lib v0.0.3 h1:vmgo4ctJdsLGE0n0n2v7xZtiSlpoOt+7AaHgaDu4aIE=
-github.com/sacloud/sacloud-usage-lib v0.0.3/go.mod h1:uRMbXYG4S+fWCDkjg8z/W2MSmiMItCNoZchzpCCprIk=
+github.com/sacloud/sacloud-usage-lib v0.0.4 h1:TvzCFxixvdqjnIB1BxAZksGuW3W6aBWwgEvjQlcNzME=
+github.com/sacloud/sacloud-usage-lib v0.0.4/go.mod h1:XPV9XOAt0OrBk5OsRA0aSHzBNYpMqRDu+GLprVo5NK0=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.2.2/go.mod h1:a8OnRcib4nhh0OaRAV+Yts87kKdq0PP7pXfy6kDkUVs=
 github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UVUgZn+9EI=
