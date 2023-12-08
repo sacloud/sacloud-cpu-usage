@@ -5,12 +5,10 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"runtime"
 	"strings"
 	"time"
 
 	"github.com/sacloud/iaas-api-go"
-	"github.com/sacloud/iaas-api-go/helper/api"
 	"github.com/sacloud/iaas-api-go/search"
 	"github.com/sacloud/iaas-api-go/types"
 	usage "github.com/sacloud/sacloud-usage-lib"
@@ -34,13 +32,13 @@ func _main() int {
 		return usage.ExitOk
 	}
 
-	client, err := serverClient()
+	caller, err := usage.SacloudAPICaller("sacloud-cpu-usage", version)
 	if err != nil {
 		log.Println(err)
 		return usage.ExitUnknown
 	}
 
-	resources, err := fetchResources(client, opts)
+	resources, err := fetchResources(iaas.NewServerOp(caller), opts)
 	if err != nil {
 		log.Println(err)
 		return usage.ExitUnknown
@@ -56,29 +54,6 @@ func _main() int {
 type iaasServerAPI interface {
 	Find(ctx context.Context, zone string, conditions *iaas.FindCondition) (*iaas.ServerFindResult, error)
 	MonitorCPU(ctx context.Context, zone string, id types.ID, condition *iaas.MonitorCondition) (*iaas.CPUTimeActivity, error)
-}
-
-func serverClient() (iaasServerAPI, error) {
-	options := api.OptionsFromEnv()
-	if options.AccessToken == "" {
-		return nil, fmt.Errorf("environment variable %q is required", "SAKURACLOUD_ACCESS_TOKEN")
-	}
-	if options.AccessTokenSecret == "" {
-		return nil, fmt.Errorf("environment variable %q is required", "SAKURACLOUD_ACCESS_TOKEN_SECRET")
-	}
-
-	if options.UserAgent == "" {
-		options.UserAgent = fmt.Sprintf(
-			"sacloud/sacloud-cpu-usage/v%s (%s/%s; +https://github.com/sacloud/sacloud-cpu-usage) %s",
-			version,
-			runtime.GOOS,
-			runtime.GOARCH,
-			iaas.DefaultUserAgent,
-		)
-	}
-
-	caller := api.NewCallerWithOptions(options)
-	return iaas.NewServerOp(caller), nil
 }
 
 func fetchResources(client iaasServerAPI, opts *usage.Option) (*usage.Resources, error) {
