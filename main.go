@@ -2,26 +2,48 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"os"
 	"strings"
 	"time"
 
+	"github.com/sacloud/go-otelsetup"
 	"github.com/sacloud/iaas-api-go"
 	"github.com/sacloud/iaas-api-go/search"
 	"github.com/sacloud/iaas-api-go/types"
 	usage "github.com/sacloud/sacloud-usage-lib"
+	"go.opentelemetry.io/otel"
 )
 
 // version by Makefile
 var version string
+
+const appName = "github.com/sacloud/sacloud-cpu-usage"
 
 func main() {
 	os.Exit(_main())
 }
 
 func _main() int {
+	// initialize OTel SDK
+	otelShutdown, err := otelsetup.Init(context.Background(), appName, version)
+	if err != nil {
+		log.Println("Error in initializing OTel SDK: " + err.Error())
+		return usage.ExitUnknown
+	}
+	defer func() {
+		err = errors.Join(err, otelShutdown(context.Background()))
+		if err != nil {
+			log.Println("Error in initializing OTel SDK: " + err.Error())
+		}
+	}()
+
+	// init root span
+	ctx, span := otel.Tracer(appName).Start(otelsetup.ContextForTrace(context.Background()), "usage.main")
+	defer span.End()
+
 	opts := &usage.Option{}
 	if err := usage.ParseOption(opts); err != nil {
 		log.Println(err)
@@ -38,7 +60,7 @@ func _main() int {
 		return usage.ExitUnknown
 	}
 
-	resources, err := fetchResources(iaas.NewServerOp(caller), opts)
+	resources, err := fetchResources(ctx, iaas.NewServerOp(caller), opts)
 	if err != nil {
 		log.Println(err)
 		return usage.ExitUnknown
@@ -56,7 +78,10 @@ type iaasServerAPI interface {
 	MonitorCPU(ctx context.Context, zone string, id types.ID, condition *iaas.MonitorCondition) (*iaas.CPUTimeActivity, error)
 }
 
-func fetchResources(client iaasServerAPI, opts *usage.Option) (*usage.Resources, error) {
+func fetchResources(ctx context.Context, client iaasServerAPI, opts *usage.Option) (*usage.Resources, error) {
+	ctx, span := otel.Tracer(appName).Start(ctx, "usage.fetchResources")
+	defer span.End()
+
 	rs := &usage.Resources{Label: "servers", Option: opts}
 	for _, prefix := range opts.Prefix {
 		for _, zone := range opts.Zones {
@@ -64,11 +89,7 @@ func fetchResources(client iaasServerAPI, opts *usage.Option) (*usage.Resources,
 				Filter: map[search.FilterKey]interface{}{},
 			}
 			condition.Filter[search.Key("Name")] = search.PartialMatch(prefix)
-			result, err := client.Find(
-				context.Background(),
-				zone,
-				condition,
-			)
+			result, err := client.Find(ctx, zone, condition)
 			if err != nil {
 				return nil, err
 			}
@@ -76,7 +97,7 @@ func fetchResources(client iaasServerAPI, opts *usage.Option) (*usage.Resources,
 				if !strings.HasPrefix(r.Name, prefix) {
 					continue
 				}
-				monitors, err := fetchServerActivities(client, zone, r.ID, opts)
+				monitors, err := fetchServerActivities(ctx, client, zone, r.ID, opts)
 				if err != nil {
 					return nil, err
 				}
@@ -96,13 +117,16 @@ func fetchResources(client iaasServerAPI, opts *usage.Option) (*usage.Resources,
 	return rs, nil
 }
 
-func fetchServerActivities(client iaasServerAPI, zone string, id types.ID, opts *usage.Option) ([]usage.MonitorValue, error) {
+func fetchServerActivities(ctx context.Context, client iaasServerAPI, zone string, id types.ID, opts *usage.Option) ([]usage.MonitorValue, error) {
+	ctx, span := otel.Tracer(appName).Start(ctx, "usage.fetchServerActivities")
+	defer span.End()
+
 	b, _ := time.ParseDuration(fmt.Sprintf("-%dm", (opts.Time+3)*5))
 	condition := &iaas.MonitorCondition{
 		Start: time.Now().Add(b),
 		End:   time.Now(),
 	}
-	activity, err := client.MonitorCPU(context.Background(), zone, id, condition)
+	activity, err := client.MonitorCPU(ctx, zone, id, condition)
 	if err != nil {
 		return nil, err
 	}
