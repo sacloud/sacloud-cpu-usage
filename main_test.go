@@ -86,7 +86,7 @@ func Test_fetchResources(t *testing.T) {
 								Values: []*iaas.MonitorCPUTimeValue{
 									{
 										Time:    time.Unix(1, 0),
-										CPUTime: 1,
+										CPUTime: 0.01,
 									},
 								},
 							},
@@ -139,15 +139,15 @@ func Test_fetchResources(t *testing.T) {
 								Values: []*iaas.MonitorCPUTimeValue{
 									{
 										Time:    time.Unix(1, 0),
-										CPUTime: 1,
+										CPUTime: 0.01,
 									},
 									{
 										Time:    time.Unix(2, 0),
-										CPUTime: 2,
+										CPUTime: 0.02,
 									},
 									{
 										Time:    time.Unix(3, 0),
-										CPUTime: 3,
+										CPUTime: 0.03,
 									},
 								},
 							},
@@ -215,7 +215,7 @@ func Test_fetchResources(t *testing.T) {
 								Values: []*iaas.MonitorCPUTimeValue{
 									{
 										Time:    time.Unix(1, 0),
-										CPUTime: 1,
+										CPUTime: 0.01,
 									},
 								},
 							},
@@ -225,7 +225,7 @@ func Test_fetchResources(t *testing.T) {
 								Values: []*iaas.MonitorCPUTimeValue{
 									{
 										Time:    time.Unix(2, 0),
-										CPUTime: 2,
+										CPUTime: 0.02,
 									},
 								},
 							},
@@ -262,7 +262,7 @@ func Test_fetchResources(t *testing.T) {
 						Monitors: []usage.MonitorValue{
 							{
 								Time:  time.Unix(2, 0),
-								Value: 2,
+								Value: 1,
 							},
 						},
 						Label: "cpu_time",
@@ -300,15 +300,15 @@ func Test_fetchResources(t *testing.T) {
 								Values: []*iaas.MonitorCPUTimeValue{
 									{
 										Time:    time.Unix(1, 0),
-										CPUTime: 1,
+										CPUTime: 0.01,
 									},
 									{
 										Time:    time.Unix(2, 0),
-										CPUTime: 2,
+										CPUTime: 0.02,
 									},
 									{
 										Time:    time.Unix(3, 0),
-										CPUTime: 3,
+										CPUTime: 0.03,
 									},
 								},
 							},
@@ -318,15 +318,15 @@ func Test_fetchResources(t *testing.T) {
 								Values: []*iaas.MonitorCPUTimeValue{
 									{
 										Time:    time.Unix(4, 0),
-										CPUTime: 4,
+										CPUTime: 0.04,
 									},
 									{
 										Time:    time.Unix(5, 0),
-										CPUTime: 5,
+										CPUTime: 0.06,
 									},
 									{
 										Time:    time.Unix(6, 0),
-										CPUTime: 6,
+										CPUTime: 0.08,
 									},
 								},
 							},
@@ -371,15 +371,15 @@ func Test_fetchResources(t *testing.T) {
 						Monitors: []usage.MonitorValue{
 							{
 								Time:  time.Unix(4, 0),
-								Value: 4,
+								Value: 2,
 							},
 							{
 								Time:  time.Unix(5, 0),
-								Value: 5,
+								Value: 3,
 							},
 							{
 								Time:  time.Unix(6, 0),
-								Value: 6,
+								Value: 4,
 							},
 						},
 						Label: "cpu_time",

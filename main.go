@@ -97,7 +97,7 @@ func fetchResources(ctx context.Context, client iaasServerAPI, opts *usage.Optio
 				if !strings.HasPrefix(r.Name, prefix) {
 					continue
 				}
-				monitors, err := fetchServerActivities(ctx, client, zone, r.ID, opts)
+				monitors, err := fetchServerActivities(ctx, client, zone, r.ID, r.GetCPU(), opts)
 				if err != nil {
 					return nil, err
 				}
@@ -117,7 +117,7 @@ func fetchResources(ctx context.Context, client iaasServerAPI, opts *usage.Optio
 	return rs, nil
 }
 
-func fetchServerActivities(ctx context.Context, client iaasServerAPI, zone string, id types.ID, opts *usage.Option) ([]usage.MonitorValue, error) {
+func fetchServerActivities(ctx context.Context, client iaasServerAPI, zone string, id types.ID, cores int, opts *usage.Option) ([]usage.MonitorValue, error) {
 	ctx, span := otel.Tracer(appName).Start(ctx, "usage.fetchServerActivities")
 	defer span.End()
 
@@ -137,7 +137,7 @@ func fetchServerActivities(ctx context.Context, client iaasServerAPI, zone strin
 
 	var results []usage.MonitorValue
 	for _, u := range usages {
-		results = append(results, usage.MonitorValue{Time: u.Time, Value: u.CPUTime})
+		results = append(results, usage.MonitorValue{Time: u.Time, Value: 100 * u.CPUTime / float64(cores)})
 	}
 	return results, nil
 }
