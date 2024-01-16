@@ -61,8 +61,8 @@ github.com/sacloud/iaas-api-go/trace/otel v0.0.0-20231214054807-49acd3db5e5d h1:
 github.com/sacloud/iaas-api-go/trace/otel v0.0.0-20231214054807-49acd3db5e5d/go.mod h1:htui6WfoaMpynNKIQwLwmiAsTUd7shWhmBBO7bfuzf8=
 github.com/sacloud/packages-go v0.0.10 h1:UiQGjy8LretewkRhsuna1TBM9Vz/l9FoYpQx+D+AOck=
 github.com/sacloud/packages-go v0.0.10/go.mod h1:f8QITBh9z4IZc4yE9j21Q8b0sXEMwRlRmhhjWeDVTYs=
-github.com/sacloud/sacloud-usage-lib v0.0.6 h1:quFtZD4cSlYQJygHzMGIdkpXj2wyK+CM2EFqd/MQ2Ww=
-github.com/sacloud/sacloud-usage-lib v0.0.6/go.mod h1:ajSjb00jwdm4UbWAP2pm/plhiT9G77q4IznDLvT1CL8=
+github.com/sacloud/sacloud-usage-lib v0.0.7 h1:gsZAObhxH+TsT5CyX+iCf8KvgAIDuPkO8uX4fP2Eows=
+github.com/sacloud/sacloud-usage-lib v0.0.7/go.mod h1:ajSjb00jwdm4UbWAP2pm/plhiT9G77q4IznDLvT1CL8=
 github.com/stretchr/testify v1.2.2/go.mod h1:a8OnRcib4nhh0OaRAV+Yts87kKdq0PP7pXfy6kDkUVs=
 github.com/stretchr/testify v1.8.4 h1:CcVxjf3Q8PM0mHUKJCdn+eZZtm5yQwehR5yeSVQQcUk=
 github.com/stretchr/testify v1.8.4/go.mod h1:sz/lmYIOXD/1dqDmKjjqLyZ2RngseejIcXlSw2iwfAo=

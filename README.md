@@ -1,6 +1,6 @@
 # sacloud-cpu-usage
 
-Fetch cpu usage of server instances from sacloud API and calcurate Max/Min/Average.
+Fetch cpu usage of server instances from sacloud API and calculate Max/Min/Average.
 
 # Usage
 
