@@ -28,7 +28,11 @@ func main() {
 
 func _main() int {
 	// initialize OTel SDK
-	otelShutdown, err := otelsetup.Init(context.Background(), appName, version)
+	otelShutdown, err := otelsetup.InitWithOptions(context.Background(), otelsetup.Options{
+		ServiceName:      "sacloud-cpu-usage",
+		ServiceVersion:   version,
+		ServiceNamespace: "sacloud",
+	})
 	if err != nil {
 		log.Println("Error in initializing OTel SDK: " + err.Error())
 		return usage.ExitUnknown
@@ -41,7 +45,7 @@ func _main() int {
 	}()
 
 	// init root span
-	ctx, span := otel.Tracer(appName).Start(otelsetup.ContextForTrace(context.Background()), "usage.main")
+	ctx, span := otel.Tracer(appName).Start(otelsetup.ContextForTrace(context.Background()), "main")
 	defer span.End()
 
 	opts := &usage.Option{}
@@ -79,7 +83,7 @@ type iaasServerAPI interface {
 }
 
 func fetchResources(ctx context.Context, client iaasServerAPI, opts *usage.Option) (*usage.Resources, error) {
-	ctx, span := otel.Tracer(appName).Start(ctx, "usage.fetchResources")
+	ctx, span := otel.Tracer(appName).Start(ctx, "fetchResources")
 	defer span.End()
 
 	rs := &usage.Resources{Label: "servers", Option: opts}
@@ -118,7 +122,7 @@ func fetchResources(ctx context.Context, client iaasServerAPI, opts *usage.Optio
 }
 
 func fetchServerActivities(ctx context.Context, client iaasServerAPI, zone string, id types.ID, cores int, opts *usage.Option) ([]usage.MonitorValue, error) {
-	ctx, span := otel.Tracer(appName).Start(ctx, "usage.fetchServerActivities")
+	ctx, span := otel.Tracer(appName).Start(ctx, "fetchServerActivities")
 	defer span.End()
 
 	b, _ := time.ParseDuration(fmt.Sprintf("-%dm", (opts.Time+3)*5))
