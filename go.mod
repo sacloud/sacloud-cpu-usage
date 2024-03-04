@@ -6,7 +6,7 @@ require (
 	github.com/sacloud/go-otelsetup v0.0.6
 	github.com/sacloud/iaas-api-go v1.11.2
 	github.com/sacloud/sacloud-usage-lib v0.0.7
-	github.com/stretchr/testify v1.8.4
+	github.com/stretchr/testify v1.9.0
 	go.opentelemetry.io/otel v1.22.0
 )
 
