@@ -1,5 +1,7 @@
 builds:
   - binary: sacloud-cpu-usage
+    env:
+      - CGO_ENABLED=0
     goos:
       - darwin
       - linux
