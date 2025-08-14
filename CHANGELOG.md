@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.2.1](https://github.com/sacloud/sacloud-cpu-usage/compare/v0.2.0...v0.2.1) - 2025-08-14
+- github.com/sacloud/sacloud-usage-lib v0.1.0 by @yamamoto-febc in https://github.com/sacloud/sacloud-cpu-usage/pull/60
+
 ## [v0.2.0](https://github.com/sacloud/sacloud-cpu-usage/compare/v0.1.1...v0.2.0) - 2025-08-14
 - go: bump github.com/sacloud/go-otelsetup from 0.0.6 to 0.5.0 by @dependabot[bot] in https://github.com/sacloud/sacloud-cpu-usage/pull/53
 - go: bump github.com/hashicorp/go-retryablehttp from 0.7.5 to 0.7.7 by @dependabot[bot] in https://github.com/sacloud/sacloud-cpu-usage/pull/54
