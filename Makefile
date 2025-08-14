@@ -1,4 +1,4 @@
-VERSION=0.1.1
+VERSION=0.2.0
 LDFLAGS=-ldflags "-w -s -X main.version=${VERSION} "
 
 all: sacloud-cpu-usage
