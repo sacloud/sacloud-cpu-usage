@@ -5,7 +5,7 @@ go 1.23.0
 require (
 	github.com/sacloud/go-otelsetup v0.5.0
 	github.com/sacloud/iaas-api-go v1.17.0
-	github.com/sacloud/sacloud-usage-lib v0.0.7
+	github.com/sacloud/sacloud-usage-lib v0.1.0
 	github.com/stretchr/testify v1.10.0
 	go.opentelemetry.io/otel v1.37.0
 )
@@ -22,9 +22,9 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.1 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-retryablehttp v0.7.8 // indirect
-	github.com/itchyny/gojq v0.12.14 // indirect
-	github.com/itchyny/timefmt-go v0.1.5 // indirect
-	github.com/jessevdk/go-flags v1.5.0 // indirect
+	github.com/itchyny/gojq v0.12.17 // indirect
+	github.com/itchyny/timefmt-go v0.1.6 // indirect
+	github.com/jessevdk/go-flags v1.6.1 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
