@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sacloud/iaas-api-go"
-	"github.com/sacloud/iaas-api-go/types"
+	"github.com/sacloud/sacloud-sdk-go/api/iaas"
+	"github.com/sacloud/sacloud-sdk-go/api/iaas/types"
 	usage "github.com/sacloud/sacloud-usage-lib"
 	"github.com/stretchr/testify/require"
 )

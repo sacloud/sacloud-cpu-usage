@@ -10,9 +10,9 @@ import (
 	"time"
 
 	"github.com/sacloud/go-otelsetup"
-	"github.com/sacloud/iaas-api-go"
-	"github.com/sacloud/iaas-api-go/search"
-	"github.com/sacloud/iaas-api-go/types"
+	"github.com/sacloud/sacloud-sdk-go/api/iaas"
+	"github.com/sacloud/sacloud-sdk-go/api/iaas/search"
+	"github.com/sacloud/sacloud-sdk-go/api/iaas/types"
 	usage "github.com/sacloud/sacloud-usage-lib"
 	"go.opentelemetry.io/otel"
 )
