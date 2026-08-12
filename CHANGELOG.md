@@ -1,5 +1,16 @@
 # Changelog
 
+## [v0.3.0](https://github.com/sacloud/sacloud-cpu-usage/compare/v0.2.1...v0.3.0) - 2026-08-12
+
+- refactor: migrate from iaas-api-go to sacloud-sdk-go by @yamamoto-febc in https://github.com/sacloud/sacloud-cpu-usage/pull/81
+- pin actions by @tokuhirom in https://github.com/sacloud/sacloud-cpu-usage/pull/80
+- go: bump github.com/sacloud/go-otelsetup from 0.5.0 to 0.8.0 by @dependabot[bot] in https://github.com/sacloud/sacloud-cpu-usage/pull/79
+- go: bump google.golang.org/grpc from 1.80.0 to 1.82.1 by @dependabot[bot] in https://github.com/sacloud/sacloud-cpu-usage/pull/83
+- ci: bump actions/checkout from 4.4.0 to 7.0.1 by @dependabot[bot] in https://github.com/sacloud/sacloud-cpu-usage/pull/78
+- ci: bump actions/setup-go from 5.6.0 to 7.0.0 by @dependabot[bot] in https://github.com/sacloud/sacloud-cpu-usage/pull/68
+- go: bump github.com/sacloud/go-otelsetup from 0.8.0 to 0.9.0 by @dependabot[bot] in https://github.com/sacloud/sacloud-cpu-usage/pull/88
+- ci: bump goreleaser/goreleaser-action from 6.4.0 to 7.2.3 by @dependabot[bot] in https://github.com/sacloud/sacloud-cpu-usage/pull/86
+
 ## [v0.2.1](https://github.com/sacloud/sacloud-cpu-usage/compare/v0.2.0...v0.2.1) - 2025-08-14
 - github.com/sacloud/sacloud-usage-lib v0.1.0 by @yamamoto-febc in https://github.com/sacloud/sacloud-cpu-usage/pull/60
 
