@@ -1,5 +1,10 @@
 # Changelog
 
+## [v0.3.1](https://github.com/sacloud/sacloud-cpu-usage/compare/v0.3.0...v0.3.1) - 2026-09-10
+
+- go: bump google.golang.org/grpc from 1.83.0 to 1.83.2 by @dependabot[bot] in https://github.com/sacloud/sacloud-cpu-usage/pull/96
+- go: bump go.opentelemetry.io/otel from 1.45.0 to 1.46.0 by @dependabot[bot] in https://github.com/sacloud/sacloud-cpu-usage/pull/93
+
 ## [v0.3.0](https://github.com/sacloud/sacloud-cpu-usage/compare/v0.2.1...v0.3.0) - 2026-08-12
 
 - refactor: migrate from iaas-api-go to sacloud-sdk-go by @yamamoto-febc in https://github.com/sacloud/sacloud-cpu-usage/pull/81
