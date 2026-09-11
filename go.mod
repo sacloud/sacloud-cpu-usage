@@ -1,10 +1,10 @@
 module github.com/kazeburo/sacloud-cpu-usage
 
-go 1.25.0
+go 1.26.0
 
 require (
 	github.com/sacloud/go-otelsetup v0.9.0
-	github.com/sacloud/sacloud-sdk-go v0.0.2-0.20260807023027-9c4bc4e8910b
+	github.com/sacloud/sacloud-sdk-go v0.2.0
 	github.com/sacloud/sacloud-usage-lib v0.2.0
 	github.com/stretchr/testify v1.12.1
 	go.opentelemetry.io/otel v1.46.0
